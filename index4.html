@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+
+.node {
+  stroke: #000000;
+  stroke-width: 1px;
+}
+
+.link {
+  stroke: #999444;
+  stroke-opacity: .6;
+}
+
+</style>
+<body>
+<script src="d3.v3.min.js"></script>
+<script>
+
+
+function update(data){
+
+   var c10 = d3.scale.category10();
+   var svg = d3.select("body")
+     .append("svg")
+     .attr("width", 1200)
+     .attr("height", 800);
+
+   var drag = d3.behavior.drag()
+     .on("drag", function(d, i) {
+       d.x += d3.event.dx
+       d.y += d3.event.dy
+       d3.select(this).attr("cx", d.x).attr("cy", d.y);
+       links.each(function(l, li) {
+         if (l.source == i) {
+           d3.select(this).attr("x1", d.x).attr("y1", d.y);
+         } else if (l.target == i) {
+           d3.select(this).attr("x2", d.x).attr("y2", d.y);
+         }
+       });
+     });
+
+   var links = svg.selectAll("link")
+     .data(data.links)
+     .enter()
+     .append("line")
+     .attr("class", "link")
+     .attr("x1", function(l) {
+       var sourceNode = data.nodes.filter(function(d, i) {
+         return i == l.source
+       })[0];
+       d3.select(this).attr("y1", sourceNode.y);
+       return sourceNode.x
+     })
+     .attr("x2", function(l) {
+       var targetNode = data.nodes.filter(function(d, i) {
+         return i == l.target
+       })[0];
+       d3.select(this).attr("y2", targetNode.y);
+       return targetNode.x
+     })
+     .attr("fill", "none")
+     .attr("stroke", "white");
+
+   var nodes = svg.selectAll("node")
+     .data(data.nodes)
+     .enter()
+     .append("circle")
+     .attr("class", "node")
+     .attr("cx", function(d) {
+       return d.x
+     })
+     .attr("cy", function(d) {
+       return d.y
+     })
+     .attr("r", 15)
+     .attr("fill", function(d, i) {
+       return c10(i);
+     })
+     .call(drag);
+
+  }
+
+/*d3.json("data2.json", function(error, data) {
+  if (error) throw error;
+  update(data);
+});*/
+node_array=[]
+for(var x=0;x<4;x++)
+{
+  for(var y=0;y<4;y++)
+  {
+    node_array.push({"name":"A","x":x*100+50,"y":y*100+50});
+  }
+}
+
+link_array=[]
+/*for(var s=0;s<node_array.length;s++)
+{
+  for(var t=0;t<node_array.length;t++)
+  {
+    link_array.push({"source":s,"target":t});
+  }
+}*/
+for(var s=1;s<node_array.length-1;s++)
+{
+    //if(s%Math.sqrt(node_array.length)==0){link_array.push({"source":s,"target":s+1});}
+    //if(s%Math.sqrt(node_array.length)==0){link_array.push({"source":s,"target":s+1});}
+    //if(s+Math.sqrt(node_array.length)<node_array.length){link_array.push({"source":s,"target":s+Math.sqrt(node_array.length)});}   
+    link_array.push({"source":4,"target":1});
+    //link_array.push({"source":1,"target":5});
+}
+
+data = {
+  "nodes": node_array
+  ,
+  "links": link_array
+};
+
+update(data);
+
+</script>
